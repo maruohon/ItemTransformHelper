@@ -1,7 +1,14 @@
 package itemtransformhelper;
 
 
+import java.util.List;
+
+import javax.vecmath.Matrix4f;
+
+import org.apache.commons.lang3.tuple.Pair;
+
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemTransformVec3f;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -9,11 +16,13 @@ import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
-import net.minecraftforge.client.model.*;
-import org.apache.commons.lang3.tuple.Pair;
 
-import javax.vecmath.Matrix4f;
-import java.util.List;
+import net.minecraftforge.client.model.Attributes;
+import net.minecraftforge.client.model.IFlexibleBakedModel;
+import net.minecraftforge.client.model.IPerspectiveAwareModel;
+import net.minecraftforge.client.model.ISmartBlockModel;
+import net.minecraftforge.client.model.ISmartItemModel;
+import net.minecraftforge.client.model.TRSRTransformation;
 
 /**
  * User: The Grey Ghost
@@ -31,7 +40,7 @@ import java.util.List;
  *
  * NB Starting with Forge 1.8-11.14.4.1563, it appears that all items now implement IPerspectiveAwareModel
  */
-@SuppressWarnings({ "deprecation", "unchecked" })
+@SuppressWarnings({ "deprecation" })
 public class ItemModelFlexibleCamera implements IFlexibleBakedModel, ISmartItemModel, ISmartBlockModel
 {
   public static ItemModelFlexibleCamera getWrappedModel(IBakedModel modelToWrap, UpdateLink linkToCurrentInformation)
@@ -50,12 +59,12 @@ public class ItemModelFlexibleCamera implements IFlexibleBakedModel, ISmartItemM
   }
 
   @Override
-  public List getFaceQuads(EnumFacing enumFacing) {
+  public List<BakedQuad> getFaceQuads(EnumFacing enumFacing) {
     return iBakedModel.getFaceQuads(enumFacing);
   }
 
   @Override
-  public List getGeneralQuads() {
+  public List<BakedQuad> getGeneralQuads() {
     return iBakedModel.getGeneralQuads();
   }
 
@@ -84,8 +93,9 @@ public class ItemModelFlexibleCamera implements IFlexibleBakedModel, ISmartItemM
   }
 
   @Override
-  public TextureAtlasSprite getTexture() {
-    return iBakedModel.getTexture();
+  public TextureAtlasSprite getParticleTexture()
+  {
+    return iBakedModel.getParticleTexture();
   }
 
   @Override
@@ -129,7 +139,7 @@ public class ItemModelFlexibleCamera implements IFlexibleBakedModel, ISmartItemM
     }
 
     @Override
-    public Pair<IBakedModel, Matrix4f> handlePerspective(ItemCameraTransforms.TransformType cameraTransformType) {
+    public Pair<? extends IFlexibleBakedModel, Matrix4f> handlePerspective(ItemCameraTransforms.TransformType cameraTransformType) {
       if (updateLink.itemModelToOverride == this) {
         ItemTransformVec3f itemTransformVec3f;
         switch (cameraTransformType) {
@@ -153,6 +163,14 @@ public class ItemModelFlexibleCamera implements IFlexibleBakedModel, ISmartItemM
                 itemTransformVec3f = updateLink.forcedTransform.head;
                 break;
             }
+            case GROUND: {
+                itemTransformVec3f = updateLink.forcedTransform.ground;
+                break;
+            }
+            case FIXED: {
+                itemTransformVec3f = updateLink.forcedTransform.fixed;
+                break;
+            }
             default: {
              throw new IllegalArgumentException("Unknown cameraTransformType:" + cameraTransformType);
             }
@@ -163,8 +181,8 @@ public class ItemModelFlexibleCamera implements IFlexibleBakedModel, ISmartItemM
         if (tr != null && tr != TRSRTransformation.identity()) {
             mat = TRSRTransformation.blockCornerToCenter(tr).getMatrix();
         }
-          return Pair.of((IBakedModel)this, mat);
 
+        return Pair.of((IFlexibleBakedModel)this, mat);
       } else {
         IBakedModel baseModel = getIBakedModel();
         return ((IPerspectiveAwareModel) baseModel).handlePerspective(cameraTransformType);

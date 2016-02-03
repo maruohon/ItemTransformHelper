@@ -5,6 +5,7 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
+
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
@@ -14,7 +15,6 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
  * Every tick, check all the items in the hotbar to see if any are the camera  If so, apply the transform
  *   override to the held item.
  */
-@SuppressWarnings("deprecation")
 public class ClientTickHandler
 {
   @SubscribeEvent

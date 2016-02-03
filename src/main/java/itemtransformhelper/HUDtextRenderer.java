@@ -2,7 +2,8 @@ package itemtransformhelper;
 
 import java.util.ArrayList;
 
-import javax.vecmath.Vector3f;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.vector.Vector3f;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -11,6 +12,8 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemTransformVec3f;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -130,7 +133,9 @@ public class HUDtextRenderer
       ItemTransformVec3f vec2 = new ItemTransformVec3f(new Vector3f(ROTATION_DEFAULT), new Vector3f(TRANSLATION_DEFAULT), new Vector3f(SCALE_DEFAULT));
       ItemTransformVec3f vec3 = new ItemTransformVec3f(new Vector3f(ROTATION_DEFAULT), new Vector3f(TRANSLATION_DEFAULT), new Vector3f(SCALE_DEFAULT));
       ItemTransformVec3f vec4 = new ItemTransformVec3f(new Vector3f(ROTATION_DEFAULT), new Vector3f(TRANSLATION_DEFAULT), new Vector3f(SCALE_DEFAULT));
-      itemCameraTransforms = new ItemCameraTransforms(vec1, vec2, vec3, vec4);
+      ItemTransformVec3f vec5 = new ItemTransformVec3f(new Vector3f(ROTATION_DEFAULT), new Vector3f(TRANSLATION_DEFAULT), new Vector3f(SCALE_DEFAULT));
+      ItemTransformVec3f vec6 = new ItemTransformVec3f(new Vector3f(ROTATION_DEFAULT), new Vector3f(TRANSLATION_DEFAULT), new Vector3f(SCALE_DEFAULT));
+      itemCameraTransforms = new ItemCameraTransforms(vec1, vec2, vec3, vec4, vec5, vec6);
       selectedField = SelectedField.TRANSFORM;
       selectedTransform = TransformName.FIRST;
       menuVisible = false;
@@ -218,21 +223,20 @@ public class HUDtextRenderer
       bottom = j1;
     }
 
-    float f3 = (float)(color >> 24 & 255) / 255.0F;
-    float f = (float)(color >> 16 & 255) / 255.0F;
-    float f1 = (float)(color >> 8 & 255) / 255.0F;
-    float f2 = (float)(color & 255) / 255.0F;
+    float a = (float)(color >> 24 & 255) / 255.0F;
+    float r = (float)(color >> 16 & 255) / 255.0F;
+    float g = (float)(color >> 8 & 255) / 255.0F;
+    float b = (float)(color & 255) / 255.0F;
     Tessellator tessellator = Tessellator.getInstance();
-    WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+    WorldRenderer worldRenderer = tessellator.getWorldRenderer();
     GlStateManager.enableBlend();
     GlStateManager.disableTexture2D();
     GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
-    GlStateManager.color(f, f1, f2, f3);
-    worldrenderer.startDrawingQuads();
-    worldrenderer.addVertex((double)left, (double)bottom, 0.0D);
-    worldrenderer.addVertex((double)right, (double)bottom, 0.0D);
-    worldrenderer.addVertex((double)right, (double)top, 0.0D);
-    worldrenderer.addVertex((double)left, (double)top, 0.0D);
+    worldRenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+    worldRenderer.pos(left,  bottom, 0).color(r, g, b, a).endVertex();
+    worldRenderer.pos(right, bottom, 0).color(r, g, b, a).endVertex();
+    worldRenderer.pos(right, top,    0).color(r, g, b, a).endVertex();
+    worldRenderer.pos(left,  top,    0).color(r, g, b, a).endVertex();
     tessellator.draw();
     GlStateManager.enableTexture2D();
     GlStateManager.disableBlend();

@@ -2,23 +2,18 @@ package itemtransformhelper;
 
 import java.util.Locale;
 
+import org.lwjgl.input.Keyboard;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemTransformVec3f;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.MathHelper;
-import net.minecraftforge.client.model.IPerspectiveAwareModel;
-import net.minecraftforge.client.model.TRSRTransformation;
+
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-
-import org.apache.commons.lang3.tuple.Pair;
-import org.lwjgl.input.Keyboard;
-
-import javax.vecmath.Matrix4f;
 
 /**
  * The menu used to select and alter the different parts of the ItemCameraTransform for the currently selected item.
@@ -34,7 +29,7 @@ public class MenuItemCameraTransforms
     linkToHUDrenderer = new HUDtextRenderer.HUDinfoUpdateLink();
     MinecraftForge.EVENT_BUS.register(new HUDtextRenderer(linkToHUDrenderer));
     menuKeyHandler = new MenuKeyHandler(this.new KeyPressCallback());
-    FMLCommonHandler.instance().bus().register(menuKeyHandler);
+    MinecraftForge.EVENT_BUS.register(menuKeyHandler);
   }
 
   /**
@@ -141,15 +136,15 @@ public class MenuItemCameraTransforms
         IBakedModel savedModel = link.itemModelToOverride;
         if (savedModel != null) {  // not sure why this would ever be null, but it was (in a bug report), so just check to make sure.
           link.itemModelToOverride = null;
-          if (savedModel instanceof IPerspectiveAwareModel) {  // IPerspectiveAware just have identity matrix for getItemCameraTransforms
+          /*if (savedModel instanceof IPerspectiveAwareModel) {  // IPerspectiveAware just have identity matrix for getItemCameraTransforms
             IPerspectiveAwareModel savedModelPA = (IPerspectiveAwareModel)savedModel;
             ItemCameraTransforms.TransformType currentType = linkToHUDrenderer.selectedTransform.getVanillaTransformType();
-            Pair<IBakedModel, Matrix4f> modelAndMatrix = savedModelPA.handlePerspective(currentType);
+            Pair<? extends IFlexibleBakedModel, Matrix4f> modelAndMatrix = savedModelPA.handlePerspective(currentType);
             TRSRTransformation tr = new TRSRTransformation(modelAndMatrix.getRight());
             tr = TRSRTransformation.blockCenterToCorner(tr);
             ItemTransformVec3f newTransform = tr.toItemTransform();
             copyTransforms(newTransform, transformVec3f);
-          } else { // not IPerspectiveAwareModel
+          } else*/ { // not IPerspectiveAwareModel
             ItemCameraTransforms originalTransforms = savedModel.getItemCameraTransforms();
             copyNonPerspectiveAware(originalTransforms, transformVec3f, linkToHUDrenderer.selectedTransform);
           }

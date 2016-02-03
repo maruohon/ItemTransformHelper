@@ -1,14 +1,18 @@
 package itemtransformhelper;
 
+import org.apache.logging.log4j.Level;
+import org.lwjgl.util.vector.Vector3f;
+
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemTransformVec3f;
 import net.minecraft.client.resources.model.IBakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.util.IRegistry;
 import net.minecraft.util.RegistrySimple;
+
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import org.apache.logging.log4j.Level;
 
 /**
  * User: The Grey Ghost
@@ -23,21 +27,30 @@ public class ModelBakeEventHandler
 {
   public ModelBakeEventHandler()
   {
-    itemOverrideLink.forcedTransform = new ItemCameraTransforms(ItemTransformVec3f.DEFAULT, ItemTransformVec3f.DEFAULT,
-                                                                ItemTransformVec3f.DEFAULT, ItemTransformVec3f.DEFAULT);
+      final Vector3f ROTATION_DEFAULT = new Vector3f(0.0F, 0.0F, 0.0F);
+      final Vector3f TRANSLATION_DEFAULT = new Vector3f(0.0F, 0.0F, 0.0F);
+      final Vector3f SCALE_DEFAULT = new Vector3f(1.0F, 1.0F, 1.0F);
+      ItemTransformVec3f vec1 = new ItemTransformVec3f(new Vector3f(ROTATION_DEFAULT), new Vector3f(TRANSLATION_DEFAULT), new Vector3f(SCALE_DEFAULT));
+      ItemTransformVec3f vec2 = new ItemTransformVec3f(new Vector3f(ROTATION_DEFAULT), new Vector3f(TRANSLATION_DEFAULT), new Vector3f(SCALE_DEFAULT));
+      ItemTransformVec3f vec3 = new ItemTransformVec3f(new Vector3f(ROTATION_DEFAULT), new Vector3f(TRANSLATION_DEFAULT), new Vector3f(SCALE_DEFAULT));
+      ItemTransformVec3f vec4 = new ItemTransformVec3f(new Vector3f(ROTATION_DEFAULT), new Vector3f(TRANSLATION_DEFAULT), new Vector3f(SCALE_DEFAULT));
+      ItemTransformVec3f vec5 = new ItemTransformVec3f(new Vector3f(ROTATION_DEFAULT), new Vector3f(TRANSLATION_DEFAULT), new Vector3f(SCALE_DEFAULT));
+      ItemTransformVec3f vec6 = new ItemTransformVec3f(new Vector3f(ROTATION_DEFAULT), new Vector3f(TRANSLATION_DEFAULT), new Vector3f(SCALE_DEFAULT));
+      itemOverrideLink.forcedTransform = new ItemCameraTransforms(vec1, vec2, vec3, vec4, vec5, vec6);
+    //itemOverrideLink.forcedTransform = new ItemCameraTransforms(ItemCameraTransforms.DEFAULT);
   }
 
   @SubscribeEvent
   public void modelBakeEvent(ModelBakeEvent event)
   {
-    IRegistry modelRegistry = event.modelRegistry;
+    IRegistry<ModelResourceLocation, IBakedModel> modelRegistry = event.modelRegistry;
     if (!(modelRegistry instanceof RegistrySimple)) {
       System.err.println("ModelBakeEventHandler::modelBakeEvent expected modelRegistry to be RegistrySimple, was actually:"+modelRegistry);
       return;
     }
-    RegistrySimple modelSimpleRegistry = (RegistrySimple)modelRegistry;
+    RegistrySimple<ModelResourceLocation, IBakedModel> modelSimpleRegistry = (RegistrySimple<ModelResourceLocation, IBakedModel>)modelRegistry;
 
-    for (Object modelKey : modelSimpleRegistry.getKeys()) {
+    for (ModelResourceLocation modelKey : modelSimpleRegistry.getKeys()) {
       IBakedModel iBakedModel = (IBakedModel)event.modelRegistry.getObject(modelKey);
       ItemModelFlexibleCamera wrappedModel = ItemModelFlexibleCamera.getWrappedModel(iBakedModel, itemOverrideLink);
       event.modelRegistry.putObject(modelKey, wrappedModel);
